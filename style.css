@@ -1,9 +1,10 @@
 :root {
     --background1 : #fbaf5d;
     --background2 : #f49ac1;
+    --background3 : #f4a79a;
     --transparentWhite: rgba(255, 255, 255, 0.50);
-    --redMultiply: rgba(248, 0, 0, 0.295);
-    --restColor1: rgba(0, 123, 224, 0.295);
+    --hoverColor:rgba(107, 0, 194, 0.363);
+    --restColor1: rgba(0, 22, 224, 0.295);
     --restColor2: rgba(123, 0, 224, 0.295);
     --focusColor1: rgba(11, 255, 105, 0.295);
     --focusColor2: rgba(157, 255, 0, 0.295);
@@ -15,6 +16,7 @@ html, body{
     padding: 0;
     font-family: 'Comfortaa', Calibri, sans-serif;
     color: white;
+    user-select: none;
 }
 
 body{
@@ -22,9 +24,9 @@ body{
     box-sizing: border-box;
     padding: 10px;
     grid-template-columns: 0 100% 0;
-    grid-template-rows: 10px 1fr 0;
+    grid-template-rows: 10px 1fr auto;
     text-align: center;
-    background: linear-gradient(to right, var(--background1), var(--background2));
+    background: linear-gradient(to right, var(--background1), var(--background3));
     background-repeat: repeat;
 }
 
@@ -106,14 +108,12 @@ body{
     border: 3px solid transparent;
 }
 
-.button:hover{
-    cursor: pointer;
-    color: var(--redMultiply);
-    border: 3px solid var(--redMultiply);
+.button:active{
+    color: var(--hoverColor);
     mix-blend-mode: multiply;
 }
 
-.customizeWrapper{
+#customizeWrapper{
     align-self: normal;
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -132,17 +132,15 @@ body{
     grid-area: customize;
     padding: 10px;
     border: 3px solid transparent;
-    transition-duration: .2s;
+    transition-duration: .1s;
 }
 
-#customize:hover{
-    cursor: pointer;
-    color: var(--redMultiply);
-    mix-blend-mode: multiply;
-    border: 3px solid var(--redMultiply);
+#focusWrap, #restWrap{
+    display: none;
 }
 
 .customTitle{
+    color: var(--transparentWhite);
     font-size: 1rem;
     line-height: 2;
 }
@@ -150,15 +148,14 @@ body{
 .setTime{
     padding: 10px;
     border: 3px solid transparent;
-    transition-duration: .2s;
+    transition-duration: .1s;
     font-weight: bolder;
 }
 
-.setTime:hover{
-    cursor: pointer;
-    color: var(--redMultiply);
+.setTime:active, #customize:active{
+    color: var(--hoverColor);
     mix-blend-mode: multiply;
-    border: 3px solid var(--redMultiply);
+    border: 3px solid var(--hoverColor);
 }
 
 #session{
@@ -178,6 +175,21 @@ body{
     line-height: 1.2rem;
 }
 
+.footer{
+    grid-area: 3/2;
+    font-family: calibri, sans-serif;
+    font-size: 1rem;
+    color: rgba(255, 212, 212, 0.795);
+}
+
+a {
+    color: inherit;
+}
+
+a:hover{
+    color: var(--hoverColor);
+}
+
 
 @media (min-width: 560px){
     body{
@@ -185,7 +197,7 @@ body{
         background: linear-gradient(to bottom right, var(--background1), var(--background2));
         background-attachment:fixed;
     }
-    .customizeWrapper{
+    #customizeWrapper{
         width: 80%;
         justify-self: center;
         align-self: center;
@@ -209,6 +221,17 @@ body{
 @media (min-width: 710px){
     body{
         grid-template-columns: 1fr 700px 1fr;
+    }
+}
+
+@media (hover){
+    .setTime:hover, #customize:hover{
+        border: 3px solid var(--hoverColor);
+    }
+    .button:hover, .setTime:hover, #customize:hover{
+        cursor: pointer;
+        color: var(--hoverColor);
+        mix-blend-mode: multiply;
     }
 }
 

@@ -6,6 +6,10 @@ var focusTime = 25;
 var restTime = 5;
 var currentTime;
 var timer;
+var showCustom = false;
+var enableCustom = true;
+var focusFinAudio = new Audio('audio/SynthChime11.mp3');
+var restFinAudio = new Audio('audio/SynthChime1.mp3');
 
 document.addEventListener("DOMContentLoaded", function(event) {
     init();
@@ -21,8 +25,9 @@ function init() {
 
 buttons = {
     restart: document.getElementById("restart"),
-    pause: document.getElementById("pause"),
+    pausePlay: document.getElementById("pause"),
     stop: document.getElementById("stop"),
+    customize: document.getElementById("customize"),
     focusUp: document.getElementById("sPlus"),
     focusDown: document.getElementById("sMinus"),
     restUp: document.getElementById("rPlus"),
@@ -30,6 +35,9 @@ buttons = {
 }
 
 uiElements = {
+    customizeWrapper: document.getElementById("customizeWrapper"),
+    customFocusWrapper: document.getElementById("focusWrap"),
+    customRestWrapper: document.getElementById("restWrap"),
     customFocus: document.getElementById("cFocus"),
     customRest: document.getElementById("cRest"),
     subtitleFocus: document.getElementsByClassName("tFocus"),
@@ -41,14 +49,13 @@ uiElements = {
 
 function bindUIActions() {
     b.restart.addEventListener("click", function() {
-        resetTimer();
-    });
-    b.pause.addEventListener("click", function() {
-        pausePlay();
-    });
+        resetTimer();});
+    b.pausePlay.addEventListener("click", function() {
+        pausePlay();});
     b.stop.addEventListener("click", function() {
-        stopButton();
-    });
+        stopButton();});
+    b.customize.addEventListener("click", function() {
+        toggleCustomBtn();});    
     b.focusUp.addEventListener("click", function() {
         changeFocusTime(1);});
     b.focusDown.addEventListener("click", function() {
@@ -57,29 +64,65 @@ function bindUIActions() {
         changeRestTime(1);});
     b.restDown.addEventListener("click", function() {
         changeRestTime(-1);});
+    
+}
+
+function toggleCustomBtn(){
+    showCustom = !showCustom;
+    switch(showCustom){
+        case(true): 
+            b.customize.innerHTML = "Hide";
+            ui.customFocusWrapper.style.display = "block";
+            ui.customRestWrapper.style.display = "block";
+            break;
+        case(false): 
+            b.customize.innerHTML = "Customize";
+            ui.customFocusWrapper.style.display = "none";
+            ui.customRestWrapper.style.display = "none";
+            break;
+    }  
+}
+
+function enableCustomButtons(bool){
+    switch(bool){
+        case(true): ui.customizeWrapper.style.display = "grid"; break;
+        case(false): ui.customizeWrapper.style.display = "none"; break;
+    }
 }
 
 function stopButton(){
     timer.stop();
     timer = undefined;
+    if (showCustom){
+        toggleCustomBtn();
+    }
     setMode("wait");
 }
 
-function pausePlay(){
+function pausePlay(bool){
     play = !play;
+    if (bool != null){
+        play = bool;
+    }
     switch(play){
         case(true): 
-            console.log("Play");
+            b.pausePlay.innerHTML = '<i class= "button fas fa-2x fa-pause"></i>';
             startCountdown();
             break;
         case(false): 
-            console.log("Pause");
-            timer.pause();
+            console.log("PAUSE");
+            ui.countdownText.innerHTML = "Paused";
+            b.pausePlay.innerHTML = '<i class= "button fas fa-2x fa-play"></i>';
+            if (timer){
+                timer.pause();
+            }
             break;
     }
 }
 
 function changeFocusTime(change){
+    if (enableCustom == false){
+        return;}
     focusTime += change;
     focusTime = Math.min(Math.max(focusTime, 1), 60); //poor man's Math.Clamp
     ui.customFocus.innerHTML = addZero(focusTime) + ":00";
@@ -88,6 +131,8 @@ function changeFocusTime(change){
 }
 
 function changeRestTime(change){
+    if (enableCustom == false){
+        return;}
     restTime += change;
     restTime = Math.min(Math.max(restTime, 1), 60); //poor man's Math.Clamp
     ui.customRest.innerHTML = addZero(restTime) + ":00";
@@ -118,7 +163,7 @@ function newCountdown(){
     timer.addEventListener('targetAchieved', function (e) {
         countdownComplete();
     });
-
+    enableCustomButtons(false);
     startCountdown();
 }
 
@@ -127,12 +172,12 @@ function startCountdown(){
         newCountdown();
         return;
     }
+    ui.countdownText.innerHTML = mode[0].toUpperCase() + mode.slice(1); // "Mode" w/ first letter capitalized
     timer.start({countdown: true, startValues: {minutes: currentTime, seconds: 00}});
 }
 
 function tickCountdown(){
     var displayTime = timer.getTimeValues().toString(['minutes', 'seconds']);
-    //console.log("Tick: " + displayTime);
     ui.countdown.innerHTML = displayTime;
     setProgressBar();
 }
@@ -162,9 +207,11 @@ function countdownComplete(){
 
 function toggleModes(){
     if (mode == "focus"){
+        focusFinAudio.play();
         setMode("rest");
     }
     else if (mode == "rest"){
+        restFinAudio.play();
         setMode("focus");
     }
 }
@@ -189,7 +236,8 @@ function setMode(newMode){
             break;
         case("wait"): 
             mode = "wait";
-            play = false;
+            pausePlay(false);
+            enableCustomButtons(true);
             resetProgressBar();
             ui.progressBar.className = "";
             ui.countdownText.innerHTML = "Ready?";
